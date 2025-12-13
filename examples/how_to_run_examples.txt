@@ -1,0 +1,8 @@
+1. Assuming you've already built DPorch.sln, navigate to the desired example's directory using the terminal.
+
+2. Type the following into the terminal:
+	dotnet run --project ..\..\src\DPorch.CLI\DPorch.CLI.csproj run
+
+3. Follow that by the configuration file(s) for the pipeline(s) you want to run, like this:
+
+dotnet run --project ..\..\src\DPorch.CLI\DPorch.CLI.csproj run .\ex_pipeline_a.json .\ex_pipeline_b.json
