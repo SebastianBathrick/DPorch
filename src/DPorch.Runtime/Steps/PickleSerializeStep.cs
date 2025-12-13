@@ -1,4 +1,5 @@
 using DPorch.Runtime.Python;
+using DPorch.Runtime.Utilities;
 using DPorch.Steps;
 using Python.Runtime;
 
@@ -11,20 +12,9 @@ public class PickleSerializeStep : ISerializeStep
 {
     const string Name = nameof(PickleSerializeStep);
     const string SerializeFunctionName = "serialize";
+    const string PyFileEmbeddedResource = "DPorch.Runtime.Python.Code.pickle_serialize.py";
 
-    static readonly string PythonCode = @"
-import pickle
-
-def serialize(obj):
-    """"""Serialize a Python object to bytes using pickle.
-
-    Args:
-        obj: Any - Python object to serialize
-
-    Returns:
-        bytes - Pickled byte representation of the object
-    """"""
-    return pickle.dumps(obj)";
+    static readonly string PythonCode = EmbeddedResourceLoader.Load(PyFileEmbeddedResource);
 
 
     /// <inheritdoc />

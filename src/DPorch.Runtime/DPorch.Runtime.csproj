@@ -19,5 +19,14 @@
     <ItemGroup>
       <ProjectReference Include="..\DPorch.Core\DPorch.Core.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Utilities\" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Remove="Python\Code\pickle_deserialize.py" />
+      <EmbeddedResource Include="Python\Code\pickle_deserialize.py" />
+      <None Remove="Python\Code\pickle_serialize.py" />
+      <EmbeddedResource Include="Python\Code\pickle_serialize.py" />
+    </ItemGroup>
 
 </Project>
