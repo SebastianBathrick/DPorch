@@ -1,0 +1,9 @@
+{
+  "name": "end_close_sock",
+  "scripts": [
+    "..\\iteration_rate_limiter.py",
+    "end_close_sock.py"
+  ],
+  "source_pipeline_count": 0,
+  "target_pipeline_names": []
+}

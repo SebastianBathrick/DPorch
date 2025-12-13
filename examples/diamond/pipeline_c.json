@@ -1,0 +1,6 @@
+{
+  "name": "pipeline_c",
+  "scripts": ["square_number.py"],
+  "source_pipeline_count": 1,
+  "target_pipeline_names": ["pipeline_d"]
+}

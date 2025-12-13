@@ -1,0 +1,6 @@
+{
+  "name": "pipeline_z",
+  "scripts": ["combine_inputs.py"],
+  "source_pipeline_count": 2,
+  "target_pipeline_names": []
+}

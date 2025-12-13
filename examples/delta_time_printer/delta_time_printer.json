@@ -1,0 +1,9 @@
+{
+  "name": "delta_time_printer",
+  "scripts": [
+    "..\\iteration_rate_limiter.py",
+    "delta_time_printer.py"
+  ],
+  "source_pipeline_count": 0,
+  "target_pipeline_names": []
+}

@@ -1,0 +1,6 @@
+{
+  "name": "pipeline_y",
+  "scripts": ["..\\iteration_rate_limiter.py", "generate_timestamp.py"],
+  "source_pipeline_count": 0,
+  "target_pipeline_names": ["pipeline_z"]
+}

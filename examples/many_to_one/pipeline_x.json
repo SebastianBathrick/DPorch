@@ -1,0 +1,6 @@
+{
+  "name": "pipeline_x",
+  "scripts": ["..\\iteration_rate_limiter.py", "generate_random.py"],
+  "source_pipeline_count": 0,
+  "target_pipeline_names": ["pipeline_z"]
+}

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+        <RootNamespace>DPorch.Runtime</RootNamespace>
+        <LangVersion>14</LangVersion>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0"/>
+        <PackageReference Include="NetMQ" Version="4.0.2.2"/>
+        <PackageReference Include="Python.Runtime" Version="2.7.9"/>
+        <PackageReference Include="pythonnet" Version="3.0.5"/>
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\DPorch.Core\DPorch.Core.csproj" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+{
+  "name": "pipeline_b",
+  "scripts": ["print_counter_msg.py"],
+  "source_pipeline_count": 1,
+  "target_pipeline_names": []
+}

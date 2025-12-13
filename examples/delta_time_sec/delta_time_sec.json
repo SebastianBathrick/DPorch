@@ -1,0 +1,8 @@
+{
+  "name": "delta_time_sec",
+  "scripts": [
+    "delta_time_sec.py"
+  ],
+  "source_pipeline_count": 0,
+  "target_pipeline_names": []
+}
