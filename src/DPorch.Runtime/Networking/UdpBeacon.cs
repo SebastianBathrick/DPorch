@@ -9,9 +9,6 @@ using DPorch.Logging;
 namespace DPorch.Runtime.Networking;
 
 // TODO: Add better timeout logic
-// TODO: Replace literals with constants where applicable
-// TODO: Move constants to a partial class
-// TODO: Make discovery port passed through constructor
 /// <summary>
 ///     Broadcasts UDP beacon messages and listens for TCP connection requests from <see cref="UdpFinder" />
 ///     instances until the required number of finders connect or cancellation is requested.
@@ -89,7 +86,8 @@ public class UdpBeacon(
 
         try
         {
-            // Uses IPv4 instead of IPv6 for easier debugging (the same is true for the rest of the code)
+            /* The UDP clients send messages on a select number of network interfaces while the TCP listener listens for client
+             activity on all interfaces.*/
             using var listener = new TcpListener(IPAddress.Any, 0);
             listener.Start();
 
@@ -112,9 +110,9 @@ public class UdpBeacon(
                     throw new TaskCanceledException("UDP Beacon discovery cancelled during operation");
 
                 // Get the finder TCP client object that connected to the listener
+                // This will throw a TaskCanceledException if there's a cancellation is requested
                 var (finderClient, finderEp) = await GetFinderTcpClient(listener);
 
-                // If no cancellation was requested and the endpoint hasn't already sent a message 
                 if (finderClient != null && finderEp != null)
                 {
                     // Get message sent by finder and then send an acknowledgement to it
@@ -124,8 +122,7 @@ public class UdpBeacon(
 
                     // If finder already mapped an error occurred and user's app won't function properly
                     if (!_finderMsgMap.TryAdd(finderEp, finderMsg))
-                        throw new InvalidOperationException(
-                            $"Received message from pipeline with invalid state:  {finderMsg}");
+                        throw new InvalidOperationException($"Received message from pipeline with invalid state:  {finderMsg}");
 
                     log.Trace("Found by unique UDP finder sent message with socket bound to {Endpoint}", finderEp);
                 }
@@ -202,13 +199,13 @@ public class UdpBeacon(
         return Encoding.UTF8.GetBytes(json);
     }
 
-    async Task<(TcpClient? client, string? ep)> GetFinderTcpClient(TcpListener listener)
+    async Task<(TcpClient client, string? ep)> GetFinderTcpClient(TcpListener listener)
     {
-        // TODO: Allow the Profiles to define a timeout for pipeline discovery
+        // TODO: Allow user preferences to define a timeout for pipeline discovery
         var client = await listener.AcceptTcpClientAsync(stepCancelTkn);
 
         if (stepCancelTkn.IsCancellationRequested)
-            return (null, null);
+            throw new TaskCanceledException("UDP Beacon discovery cancelled during TCP client acceptance");
 
         var ep = client.Client.RemoteEndPoint?.ToString();
         return (client, ep);
@@ -262,7 +259,6 @@ public class UdpBeacon(
 
             try
             {
-                // Get IPv4 address instead of IPv6 for easier debugging            
                 var ipv4 = GetIPv4Address(netInterface);
                 var subnetMask = GetSubnetMask(netInterface);
                 var broadcastIp = GetBroadcastIp(ipv4, subnetMask);
