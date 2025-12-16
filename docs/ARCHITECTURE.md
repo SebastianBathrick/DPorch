@@ -370,4 +370,4 @@ When implementing new step types:
 
 ---
 
-*Last updated: December 12, 2025*
+*Last updated: December 16, 2025*
