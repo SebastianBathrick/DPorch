@@ -11,6 +11,7 @@ DPorch is a distributed pipeline orchestration framework written in C# for build
 - **Python 3.7+** (via PythonNet)
 - **NetMQ**, TCP/UDP (System.Net.Sockets)
 - **JSON** configuration (System.Text.Json)
+- **pickle** module
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
