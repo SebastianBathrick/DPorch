@@ -1,10 +1,188 @@
 # DPorch
+DPorch is a distributed pipeline orchestration framework written in C# for building configurable, TCP-connected data-processing pipelines using simple JSON configs and user-generated Python scripts.
 
-DPorch is a distributed pipeline orchestration framework written in C# for building configurable, TCP-connected data-processing pipelines using simple JSON configs and Python scripts.
+* **Pipeline Execution** - Each pipeline is a network node that independently runs user-generated Python code in its own continuous iteration loop, processing data as it arrives and immediately beginning the next iteration after sending results.
+* **Script Chaining** - Each pipeline is defined by a JSON config containing an ordered list of Python scripts that execute sequentially in each iteration. Each script defines a step() function that receives the previous script’s output as input, with the final script’s return value sent to connected target pipelines.
+* **Pipeline Communication** - Pipelines discover each other on the local network using names defined in their configs and establish TCP connections. Data is automatically serialized, transmitted, and deserialized, then provided to the target pipeline’s first script as input. When a pipeline receives data from source(s), values are provided as a dictionary with keys matching source pipeline name(s) (e.g., input["rand_num"], input["adder"]).
 
-* **Pipeline Execution** - Each pipeline runs independently in its own continuous iteration loop, processing data as it arrives and immediately beginning the next iteration after sending results.
-* **Script Chaining** - Each pipeline is defined by a JSON config containing an ordered list of Python scripts that execute sequentially in each iteration. Each script defines a `step()` function that receives the previous script's output as input, with the final script's return value sent to connected target pipelines.
-* **Pipeline Communication** - Pipelines discover each other on the local network using names defined in their configs and establish TCP connections. Data is automatically serialized, transmitted, and deserialized, then provided to the target pipeline's first script as input. When a pipeline receives data from source(s), values are provided as a dictionary with keys matching source pipeline name(s) (e.g., `input["rand_num"]`, `input["adder"]`).
+### Technologies
+
+- **.NET 9.0** (C#)
+- **Python 3.7+** (via PythonNet)
+- **NetMQ** (ZeroMQ), TCP/UDP (System.Net.Sockets)
+- **JSON** configuration (System.Text.Json)
+
+## Table of Contents
+- [Prerequisites](#prerequisites)
+- [Quick Start Guide](#quick-start-guide)
+- [Command Line Interface](#command-line-interface)
+- [Pipeline Configurations](#pipeline-configurations)
+- [Python Scripting](#python-scripting)
+  - [Step Function](#step-function)
+  - [End Function](#end-function)
+  - [Delta Time](#delta-time)
+- [Pipeline Communication](#pipeline-communication)
+  - [One Source to Multiple Targets](#one-source-to-multiple-targets)
+  - [Multiple Sources to One Target](#multiple-sources-to-one-target)
+  - [Diamond Pipeline Topology Example](#diamond-pipeline-topology-example)
+
+# Prerequisites
+
+- **.NET 9.0 SDK or later** - [Download here](https://dotnet.microsoft.com/download)
+  - Verify installation: `dotnet --version`
+  
+- **Python 3.7 or later** - [Download here](https://www.python.org/downloads/)
+  - Verify installation: `python --version`
+  - **Important**: Note the location of your Python DLL file (e.g., `python311.dll`) - you'll need this during setup
+# Quick Start Guide
+
+## 1. Clone and Build
+Clone the repository and navigate to its root directory:
+```powershell
+git clone https://github.com/SebastianBathrick/DPorch
+cd DPorch
+```
+
+Restore dependencies and build the solution:
+```powershell
+dotnet restore
+dotnet build
+```
+
+## 2. Run First-Time Setup
+Navigate to the CLI directory:
+```powershell
+cd .\src\DPorch.CLI\
+```
+
+Start DPorch to begin the setup wizard:
+```powershell
+dotnet run
+```
+
+You'll see:
+```
+Initialized: Created new preferences file at C:\Users\Sebastian\AppData\Roaming\DPorch\settings.json
+
+Required preferences have not been assigned values
+You can assign them now using prompts or later using the pref command with the appropriate options
+
+Would you like to set required preferences now? [y/n] (y):
+```
+
+Press `y` and `ENTER` to continue.
+
+## 3. Configure Settings
+
+**Python DLL Path**  
+Enter the path to your Python 3.7+ DLL:
+```
+Please enter Python v3.7+ DLL path: C:\Users\Name\AppData\Local\Programs\Python\Python311\python311.dll
+```
+
+**Input Network Interface**  
+Select the interface where pipelines will listen for incoming TCP connections. Use arrow keys to navigate, then press `ENTER`:
+```
+Select input network interface:
+> Wi-Fi
+  Loopback Pseudo-Interface 1
+  Local Area Connection* 9
+  ...
+```
+
+**Output Network Interfaces**  
+Select one or more interfaces that pipelines will scan to discover other pipelines. Use arrow keys to navigate and `SPACEBAR` to select. Press `ENTER` when done:
+```
+Select output network interfaces:
+> [X] Wi-Fi
+  [ ] Loopback Pseudo-Interface 1
+  [ ] Local Area Connection* 9
+  ...
+```
+
+**Service Discovery Port**  
+Enter the UDP port for pipeline discovery (default: 5557):
+```
+Please enter service discovery port (1-65535) (5557): 5557
+Saved: Discovery port: 5557
+Preferences file setup complete!
+```
+## 4. Create Your First Pipelines
+
+This section shows you how to create two pipelines that communicate across machines.
+
+### Machine 1: Create Pipeline A
+
+Create a working directory:
+```powershell
+mkdir tutorial
+cd tutorial
+```
+
+Create Pipeline A that will send data:
+```powershell
+dporch init -n pipeline_a -i 0 -o pipeline_b -s generate_number.py
+```
+
+The flags specify:
+- `-n pipeline_a` - Names the pipeline
+- `-i 0` - No input sources (it generates data)
+- `-o pipeline_b` - Sends output to pipeline_b
+- `-s generate_number.py` - Uses this Python script
+
+Create and edit `generate_number.py`:
+```python
+import time
+counter = 0
+
+def step():
+    global counter
+    counter += 1
+    time.sleep(1)
+    print(f"Sending: {counter}")
+    return counter
+```
+
+### Machine 2: Create Pipeline B
+
+On the second machine, create a directory:
+```powershell
+mkdir tutorial
+cd tutorial
+```
+
+Create Pipeline B that will receive data:
+```powershell
+dporch init -n pipeline_b -i 1 -s print_number.py
+```
+
+The flags specify:
+- `-n pipeline_b` - Names the pipeline
+- `-i 1` - Expects data from 1 source pipeline
+- `-s print_number.py` - Uses this Python script
+
+Create and edit `print_number.py`:
+```python
+def step(input_data):
+    number = input_data["pipeline_a"]
+    print(f"Received: {number}")
+```
+
+### Run the Pipelines
+
+On **Machine 1**, run Pipeline A:
+```powershell
+dporch run pipeline_a.json
+```
+
+On **Machine 2**, run Pipeline B:
+```powershell
+dporch run pipeline_b.json
+```
+
+You should see Pipeline A sending numbers and Pipeline B receiving them. Press `Ctrl+C` to stop either pipeline.
+
+For more complex pipeline topologies and advanced features, continue reading the sections below.
 
 # Command Line Interface
 DPorch is controlled using an option-based CLI. To run a command, you use DPorch’s executable path and follow it with options. To see a list of available commands, type into the terminal:
@@ -14,7 +192,7 @@ PS C:\ dporch --help
 The following will be displayed:
 ```powershell
 USAGE:
-    dporch [OPTIONS] <COMMAND
+    dporch [OPTIONS] <COMMAND>
 
 EXAMPLES:
     dporch init
@@ -60,23 +238,6 @@ The command creates a `.json` file in the current working directory that contain
 * **scripts** - Python script file paths relative to the configuration file directory to execute sequentially in each iteration. Each script must define a `step()` function. There must be at least one script file path.
 * **source_pipeline_count** - The number of source pipelines this pipeline expects to receive data from. The pipeline will wait for data from all sources before beginning each iteration. This number can be zero or greater.
 * **target_pipeline_names** - Pipeline names to send this pipeline's output data to. The final script's return value will be sent to all targets listed here. There can be zero or more target pipelines.
-
-## Pipeline Configuration Example
-```json
-{
-  "name": "fetcher_pipeline",
-  "scripts": [
-    "websocket.py",    
-    "helpers/data_scrubber.py",
-    "formatter.py"
-    ],
-  "source_pipeline_count": 0,
-  "target_pipeline_names": [
-     "storage_pipeline",
-     "state_cruncher_pipeline"
-   ]
-}
-```
 
 # Python Scripting
 Python scripts define pipeline behavior at every phase of its lifecycle: when it starts up, during each iteration, and when it shuts down. Each script has lifecycle hooks similar to React components or Unity MonoBehaviours—code that runs once on startup, code that runs repeatedly, and cleanup code.
@@ -358,7 +519,6 @@ def step():
     num = random.randint(1, 100)
     print(f"pipeline_x generated: {num}")
     return num
-### 
 ```
 
 **pipeline_y.json**
@@ -435,7 +595,7 @@ In this example, `pipeline_a` generates numbers and sends them to both `pipeline
 
 <img src="/.github/images/diamond-ex.svg" width=480 alt="Diagram showing pipeline_a pointing to both pipeline_b and pipeline_c, which both point to pipeline_d">
 
-### pipeline_a- Number Generator
+### pipeline_a - Number Generator
 
 **pipeline_a.json**
 ```json
@@ -576,3 +736,10 @@ Notice how `pipeline_d` only processes data after receiving input from both `pip
 - `pipeline_b` doubles it to 6
 - `pipeline_c` squares it to 9
 - `pipeline_d` receives both and adds them: 6 + 9 = 15
+
+# Additional Documentation
+
+For detailed technical documentation, including threading model, design patterns, and implementation details, see [ARCHITECTURE.md](ARCHITECTURE.md).
+
+# License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
