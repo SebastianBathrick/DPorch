@@ -3,7 +3,7 @@ DPorch is a distributed pipeline orchestration framework written in C# for build
 
 * **Pipeline Execution** - Each pipeline is a network node that independently runs user-generated Python code in its own continuous iteration loop, processing data as it arrives and immediately beginning the next iteration after sending results.
 * **Script Chaining** - Each pipeline is defined by a JSON config containing an ordered list of Python scripts that execute sequentially in each iteration. Each script defines a step() function that receives the previous script’s output as input, with the final script’s return value sent to connected target pipelines.
-* **Pipeline Communication** - Pipelines discover each other on the local network using names defined in their configs and establish TCP connections. Data is automatically serialized, transmitted, and deserialized, then provided to the target pipeline’s first script as input. When a pipeline receives data from source(s), values are provided as a dictionary with keys matching source pipeline name(s) (e.g., input["rand_num"], input["adder"]).
+* **Pipeline Communication** - Pipelines discover each other on the local network using names defined in their configs and establish TCP connections. Data is automatically serialized, transmitted, and deserialized, then provided to the target pipelines' first scripts as input. When a pipeline receives data from source(s), values are provided as a dictionary with keys matching source pipeline name(s) (e.g., input["rand_num"], input["adder"]).
 
 ### Technologies
 
@@ -180,7 +180,7 @@ On **Machine 2**, run Pipeline B:
 dporch run pipeline_b.json
 ```
 
-You should see Pipeline A sending numbers and Pipeline B receiving them. Press `Ctrl+C` to stop either pipeline.
+You should see Pipeline A sending numbers and Pipeline B receiving them. Press `CTRL+C` to stop either pipeline.
 
 For more complex pipeline topologies and advanced features, continue reading the sections below.
 
@@ -241,6 +241,9 @@ The command creates a `.json` file in the current working directory that contain
 
 # Python Scripting
 Python scripts define pipeline behavior at every phase of its lifecycle: when it starts up, during each iteration, and when it shuts down. Each script has lifecycle hooks similar to React components or Unity MonoBehaviours—code that runs once on startup, code that runs repeatedly, and cleanup code.
+> [!NOTE]
+> [/examples](/examples) contains files for each example shown below.
+
 
 ## Step Function
 Each Python script requires a top-level function named `step` with an optional parameter. The following is a bare-minimum but valid script:
@@ -304,7 +307,7 @@ Counter value this iteration: 3
 
 ## End Function
 
-Each script can optionally define an `end` function that is called when the pipeline shuts down, such as when the user sends a keyboard interrupt (CTRL+C) in the terminal. The `end()` function takes no parameters and is useful for cleanup operations like releasing resources or closing connections. Like `step()` functions, `end()` functions execute sequentially in the order scripts are defined in the configuration.
+Each script can optionally define an `end` function that is called when the pipeline shuts down, such as when the user sends a keyboard interrupt (`CTRL+C`) in the terminal. The `end()` function takes no parameters and is useful for cleanup operations like releasing resources or closing connections. Like `step()` functions, `end()` functions execute sequentially in the order scripts are defined in the configuration.
 
 The following is a valid script with an `end()` function:
 ```python
@@ -315,7 +318,7 @@ def end():
     print("Cleaning up resources")
 ```
 
-When a pipeline with this script receives a shutdown signal (CTRL+C), it will call the `end()` function before terminating. If a script does not define an `end()` function, DPorch will skip it and move to the next script.
+When a pipeline with this script receives a shutdown signal (`CTRL+C`), it will call the `end()` function before terminating. If a script does not define an `end()` function, DPorch will skip it and move to the next script.
 
 Here's a practical example that demonstrates resource management using the `end()` function. This script creates a TCP socket connection, uses it during iterations, and properly closes it during cleanup:
 
@@ -350,7 +353,7 @@ def end():
     print("Socket closed")
 ```
 
-The script creates a socket connection at the top level, which executes once when the pipeline starts. Each iteration sends a message and receives a response using the `step()` function. When the pipeline shuts down (via CTRL+C), the `end()` function is called automatically, ensuring the socket is properly closed before the program terminates.
+The script creates a socket connection at the top level, which executes once when the pipeline starts. Each iteration sends a message and receives a response using the `step()` function. When the pipeline shuts down (via `CTRL+C`), the `end()` function is called automatically, ensuring the socket is properly closed before the program terminates.
 
 ## Delta Time
 
@@ -400,7 +403,7 @@ The script maintains an `elapsed_time` accumulator that adds the `delta_time` fr
 
 # Pipeline Communication
 
-DPorch pipelines can send data to multiple target pipelines and receive data from multiple source pipelines. A pipeline can have zero or more target pipelines and can receive data from zero or more source pipelines, allowing for flexible network topologies.
+A DPorch pipeline can send output data to zero or more target pipelines and receive input data from zero or more source pipelines, enabling flexible network topologies.
 
 ## One Source to Multiple Targets
 
@@ -465,7 +468,7 @@ def step(input_data):
     print(f"I got a message from pipeline_a: {msg}")
 ```
 
-When a pipeline receives data from source pipelines, DPorch provides it as a dictionary where the keys are the source pipeline names. Here, both `pipeline_b` and `pipeline_c` access the incoming counter value using `input_data["pipeline_a"]` because `pipeline_a` is the name of the source.
+When a pipeline receives data from source pipelines, DPorch bundles the data as a dictionary where the keys are the source pipeline names and the values are the data the keyed pipeline sent. Here, both `pipeline_b` and `pipeline_c` access the incoming counter value using `input_data["pipeline_a"]` because `pipeline_a` is the name of the source.
 
 When these three pipelines run together, they produce the following output:
 
@@ -739,7 +742,11 @@ Notice how `pipeline_d` only processes data after receiving input from both `pip
 
 # Additional Documentation
 
-For detailed technical documentation, including threading model, design patterns, and implementation details, see [ARCHITECTURE.md](ARCHITECTURE.md).
+For detailed technical documentation, including threading model, design patterns, and implementation details, see [ARCHITECTURE.md](/docs/ARCHITECTURE.md).
+
+# Contributing
+
+Contributions are welcome! Please feel free to submit issues or pull requests.
 
 # License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for more details.
