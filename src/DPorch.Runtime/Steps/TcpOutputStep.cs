@@ -26,11 +26,14 @@ public class TcpOutputStep(string pipelineName, string[] outTargPipes, int disco
     /// <inheritdoc />
     public void Awake()
     {
+        if (StepCancellationToken == null)
+            throw new NullReferenceException("Null cancellation token in TCP output module Awake()");
+        
         // Uses Guid as network identity to avoid pipeline name collisions in a TcpInputModule instance
         var guid = Guid.NewGuid();
         var ackReq = new InputSourcePipelineInfo(pipelineName, guid);
         var ackReqBytes = JsonSerializer.SerializeToUtf8Bytes(ackReq);
-        var finder = new UdpFinder(ackReqBytes, outTargPipes, discoveryPort, log);
+        var finder = new UdpFinder(ackReqBytes, outTargPipes, discoveryPort, log, StepCancellationToken.Value);
 
         // A list will be generated containing all target pipeline UCRI
         var targUriList = finder.DiscoverAsync().GetAwaiter().GetResult();
@@ -38,8 +41,7 @@ public class TcpOutputStep(string pipelineName, string[] outTargPipes, int disco
         if (targUriList.Count != outTargPipes.Length)
         {
             log.Error("Failed to connect to {Count} pipelines", outTargPipes.Length);
-
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("TCP output module failed to discover all target pipelines");
         }
 
         var sock = new PushSocket();

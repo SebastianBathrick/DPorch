@@ -11,6 +11,17 @@ namespace DPorch.Runtime.Steps;
 /// </summary>
 class PythonScriptStep(string scrName, string code, List<IManagedPythonVariable> mngedVars, ILogger log) : IScriptStep
 {
+    #region Constants
+
+    const int NoParameter = 0;
+    const int SingleParameter = 1;
+    const int ParameterCountNotSet = -1;
+    const int EndFunctionParameterCount = 0;
+    const string StepFunctionName = "step";
+    const string EndFunctionName = "end";
+
+    #endregion
+
     bool _isEndFunc;
     List<IManagedPythonVariable> _mngedVars = [..mngedVars];
     int _paramCount = ParameterCountNotSet;
@@ -90,15 +101,4 @@ class PythonScriptStep(string scrName, string code, List<IManagedPythonVariable>
 
         return ParameterCountNotSet;
     }
-
-    #region Constants
-
-    const int NoParameter = 0;
-    const int SingleParameter = 1;
-    const int ParameterCountNotSet = -1;
-    const int EndFunctionParameterCount = 0;
-    const string StepFunctionName = "step";
-    const string EndFunctionName = "end";
-
-    #endregion
 }

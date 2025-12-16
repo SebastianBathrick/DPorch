@@ -29,15 +29,13 @@ namespace DPorch.Runtime.Networking;
 /// <param name="log">
 ///     Logger for providing finder status updates.
 /// </param>
-public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, ILogger log) : IDisposable
+public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, ILogger log, CancellationToken stepCancelTkn) : IDisposable
 {
     const int AcknowledgementBufferSize = 1024;
     const int TimeoutMinutes = 10;
     
     readonly List<string> _ackMsgs = [];
-
-    readonly CancellationTokenSource _cts = new(TimeSpan.FromMinutes(TimeoutMinutes));
-
+    
     readonly UdpClient _udpClient = new();
 
     bool _isDisposed;
@@ -80,7 +78,7 @@ public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, 
             // (All of this assuming both UdpFinders and UdpBeacons are configured correctly)
             foreach (var targName in targNames)
             {
-                if (_cts.IsCancellationRequested)
+                if (stepCancelTkn.IsCancellationRequested)
                     return [];
 
                 await DiscoverTarget(targName);
@@ -88,6 +86,10 @@ public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, 
             }
 
             return _ackMsgs.AsReadOnly();
+        }
+        catch (OperationCanceledException)
+        {
+            throw; // Cancellation requested by client, abort without logging error (expected behavior)
         }
         catch (Exception ex)
         {
@@ -102,9 +104,9 @@ public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, 
 
     async Task DiscoverTarget(string targName)
     {
-        while (!_cts.IsCancellationRequested)
+        while (!stepCancelTkn.IsCancellationRequested)
         {
-            var result = await _udpClient.ReceiveAsync(_cts.Token);
+            var result = await _udpClient.ReceiveAsync(stepCancelTkn);
 
             // Expecting JSON containing name of beacon & port of its TCPListener (serialized BeaconInfo)
             var rawUdpMsg = Encoding.UTF8.GetString(result.Buffer);
@@ -122,7 +124,7 @@ public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, 
     async Task RequestAcknowledgement(IPAddress beaconAddr, int listenerPort)
     {
         using var msgSenderClient = new TcpClient();
-        await msgSenderClient.ConnectAsync(beaconAddr, listenerPort, _cts.Token);
+        await msgSenderClient.ConnectAsync(beaconAddr, listenerPort, stepCancelTkn);
 
         using var stream = msgSenderClient.GetStream();
 
@@ -130,7 +132,7 @@ public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, 
         await stream.WriteAsync(ackReqMsg, 0, ackReqMsg.Length);
 
         var buffer = new byte[AcknowledgementBufferSize];
-        var bytesRead = await stream.ReadAsync(buffer, _cts.Token);
+        var bytesRead = await stream.ReadAsync(buffer, stepCancelTkn);
         _ackMsgs.Add(Encoding.UTF8.GetString(buffer, 0, bytesRead));
     }
     
@@ -140,9 +142,6 @@ public class UdpFinder(byte[] ackReqMsg, string[] targNames, int discoveryPort, 
             return;
 
         _isDisposed = true;
-        _cts.Cancel();
-        _cts.Dispose();
-
         _udpClient.Client.Close();
         _udpClient.Client.Dispose();
         _udpClient.Close();
