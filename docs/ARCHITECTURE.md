@@ -18,12 +18,25 @@ DPorch uses the **Builder pattern** for pipeline construction and a **three-stag
 
 ### Builder + Factory Pattern
 
+**Related files:**
+- [`IPipelineBuilder`](../src/DPorch.Core/IPipelineBuilder.cs) - Builder interface
+- [`IPipeline`](../src/DPorch.Core/IPipeline.cs) - Pipeline interface
+- [`IStep`](../src/DPorch.Core/Steps/IStep.cs) - Base step interface
+- [`PipelineBuilder`](../src/DPorch.Core/Classes/PipelineBuilder.cs) - Builder implementation
+- [`RuntimeServices`](../src/DPorch.Runtime/RuntimeServices.cs) - DI configuration
+
 - `IPipelineBuilder` constructs `IPipeline` instances using a fluent API
 - Builders are injected with factory delegates for creating concrete `IStep` implementations
 - `RuntimeServices` configures the dependency injection container with all factory implementations
 - Factory delegates decouple the Core layer from Runtime implementations
 
 ## Pipeline Lifecycle
+
+**Related files:**
+- [`Pipeline`](../src/DPorch.Core/Classes/Pipeline.cs) - Core pipeline implementation
+- [`TcpInputStep`](../src/DPorch.Runtime/Steps/TcpInputStep.cs) - TCP input step
+- [`TcpOutputStep`](../src/DPorch.Runtime/Steps/TcpOutputStep.cs) - TCP output step
+- [`PythonScriptStep`](../src/DPorch.Runtime/Steps/PythonScriptStep.cs) - Python script step
 
 Each pipeline runs on an isolated thread with three distinct stages:
 
@@ -65,6 +78,14 @@ Each pipeline runs on an isolated thread with three distinct stages:
 
 ## Step Types and Data Flow
 
+**Related files:**
+- [`IStep`](../src/DPorch.Core/Steps/IStep.cs) - Base step interface
+- [`IInputStep`](../src/DPorch.Core/Steps/IInputStep.cs) - Input step interface
+- [`IDeserializeStep`](../src/DPorch.Core/Steps/IDeserializeStep.cs) - Deserialize step interface
+- [`IScriptStep`](../src/DPorch.Core/Steps/IScriptStep.cs) - Script step interface
+- [`ISerializeStep`](../src/DPorch.Core/Steps/ISerializeStep.cs) - Serialize step interface
+- [`IOutputStep`](../src/DPorch.Core/Steps/IOutputStep.cs) - Output step interface
+
 All steps implement `IStep` with `Awake()` and `End()` methods. Specialized step interfaces define iteration behavior:
 
 ### Step Interface Hierarchy
@@ -105,6 +126,9 @@ OutputStep.Send()
 
 ## Threading Model
 
+**Related files:**
+- [`Pipeline`](../src/DPorch.Core/Classes/Pipeline.cs) - Thread management and lifecycle
+
 ### Pipeline Thread Creation
 
 1. Client calls `IPipeline.TryStart(TaskCompletionSource exitTcs, CancellationToken cancelTkn)`
@@ -138,6 +162,10 @@ When cancellation is requested:
 
 ## Builder Pattern
 
+**Related files:**
+- [`PipelineBuilder`](../src/DPorch.Core/Classes/PipelineBuilder.cs) - Fluent API implementation
+- [`IPipelineBuilder`](../src/DPorch.Core/IPipelineBuilder.cs) - Builder interface
+
 ### Fluent API Design
 
 ```csharp
@@ -170,6 +198,14 @@ When a `Set*Step()` or `AddScriptStep()` method is called, the builder invokes t
 
 
 ## Network Discovery
+
+**Related files:**
+- [`TcpInputStep`](../src/DPorch.Runtime/Steps/TcpInputStep.cs) - Input pipeline discovery
+- [`TcpOutputStep`](../src/DPorch.Runtime/Steps/TcpOutputStep.cs) - Output pipeline discovery
+- [`UdpBeacon`](../src/DPorch.Runtime/Networking/UdpBeacon.cs) - UDP beacon broadcaster
+- [`UdpFinder`](../src/DPorch.Runtime/Networking/UdpFinder.cs) - UDP beacon listener
+- [`BeaconInfo`](../src/DPorch.Runtime/Networking/BeaconInfo.cs) - Beacon message format
+- [`InputSourcePipelineInfo`](../src/DPorch.Runtime/Networking/InputSourcePipelineInfo.cs) - Source info message
 
 ### Discovery Process
 
@@ -205,6 +241,12 @@ Both `TcpInputStep` and `TcpOutputStep` accept network interface names (e.g., "E
 - **Output:** Uses specified interfaces for UDP beacon listening
 
 ## Python Integration
+
+**Related files:**
+- [`PythonScriptStep`](../src/DPorch.Runtime/Steps/PythonScriptStep.cs) - Python script execution
+- [`PythonGIL`](../src/DPorch.Runtime/Python/PythonGIL.cs) - GIL management and module operations
+- [`IManagedPythonVariable`](../src/DPorch.Runtime/Python/ManagedVariables/IManagedPythonVariable.cs) - Managed variable interface
+- [`DeltaTimePythonVariable`](../src/DPorch.Runtime/Python/ManagedVariables/DeltaTimePythonVariable.cs) - Delta time variable implementation
 
 ### PythonScriptStep Design
 
@@ -263,6 +305,13 @@ PyObject result = PythonGil.CallFunction(moduleName, "step", argument);
 ```
 
 ## Dependency Injection
+
+**Related files:**
+- [`RuntimeServices`](../src/DPorch.Runtime/RuntimeServices.cs) - DI container configuration
+- [`ConsoleLogger`](../src/DPorch.Core/Classes/Logging/ConsoleLogger.cs) - Console logger implementation
+- [`ILogger`](../src/DPorch.Core/Logging/ILogger.cs) - Logger interface
+- [`PickleSerializeStep`](../src/DPorch.Runtime/Steps/PickleSerializeStep.cs) - Pickle serialization
+- [`PickleDeserializeStep`](../src/DPorch.Runtime/Steps/PickleDeserializeStep.cs) - Pickle deserialization
 
 `RuntimeServices.GetServiceProvider()` configures all dependencies:
 
