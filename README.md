@@ -742,9 +742,7 @@ Notice how `pipeline_d` only processes data after receiving input from both `pip
 - `pipeline_d` receives both and adds them: 6 + 9 = 15
 
 # Security Note
-DPorch is designed for trusted local networks. Do not expose 
-pipelines to the internet without additional security measures 
-(VPN, firewall, etc.). All communication is unencrypted and 
+DPorch is designed for trusted local networks. All communication is unencrypted and 
 unauthenticated.
 
 # Additional Documentation
