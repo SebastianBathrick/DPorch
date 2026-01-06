@@ -12,6 +12,7 @@ DPorch is a distributed framework written in C# for building JSON-configurable, 
 - **NetMQ** (ZeroMQ), TCP/UDP (System.Net.Sockets)
 - **JSON** configuration (System.Text.Json)
 - **pickle** serialization
+- **xUnit + Moq** for unit testing
 
 ## Table of Contents
 - [Prerequisites](#prerequisites)
