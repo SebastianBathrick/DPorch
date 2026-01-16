@@ -1,5 +1,5 @@
 # DPorch
-DPorch is a distributed framework written in C# for building JSON-configurable, TCP-connected data-processing pipelines with behavior defined by user-generated Python scripts.
+DPorch is a distributed framework for building distributed interconnected data-processing pipelines, with each pipeline defined by a JSON configuration and as few as two lines of user-written Python
 
 * **Pipeline Execution** - Each pipeline is a local network node that independently runs user-generated Python code in its own continuous iteration loop, processing data as it arrives and immediately beginning the next iteration after sending results.
 * **Script Chaining** - Pipelines are defined by a JSON config containing an ordered list of Python scripts that execute sequentially in each iteration. Each script defines a step() function that receives the previous script’s output as input, with the final script’s return value sent to connected target pipelines.
