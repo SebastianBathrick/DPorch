@@ -1,9 +1,18 @@
 # DPorch
-DPorch is a distributed framework for building distributed interconnected data-processing pipelines, with each pipeline defined by a JSON configuration and as few as two lines of user-written Python
+DPorch is a Python runtime for executing and connecting decentralized data engineering pipelines used in directed graph workflows. Each environment acts as a node that runs a single Python pipeline. Nodes exchange data through peer-to-peer connections, where incoming data is queued, processed by event-driven Python scripts, and relayed to other nodes specified in a JSON configuration. 
 
-* **Pipeline Execution** - Each pipeline is a local network node that independently runs user-generated Python code in its own continuous iteration loop, processing data as it arrives and immediately beginning the next iteration after sending results.
-* **Script Chaining** - Pipelines are defined by a JSON config containing an ordered list of Python scripts that execute sequentially in each iteration. Each script defines a step() function that receives the previous script’s output as input, with the final script’s return value sent to connected target pipelines.
-* **Pipeline Communication** - Pipelines discover each other on the local network using names defined in their configs and establish TCP connections. Data is automatically serialized, transmitted, and deserialized, then provided to the target pipelines' first scripts as input. When a pipeline receives data from source(s), values are provided as a dictionary with keys matching source pipeline name(s) (e.g., input["rand_num"], input["adder"]).
+Here's an overview of how the runtime works:
+
+* A JSON configuration file is passed to the runtime environment outlining a node and its pipeline. The file specifies key elements: the node name, the number of nodes it expects to receive data from, a list of Python scripts that define the data processing logic, and the names of the nodes to which it relays data.
+* Nodes first broadcast their presence via UDP on a designated port, then exchange handshakes to connect TCP push/pull sockets.
+* For each configured Python script, its top-level code is executed, and an isolated module/scope is created that persists until the environment closes (for storing state in global variables). 
+* After nodes connect and Python scripts are initialized, data will then start to be exchanged and processed.
+* Nodes continuously queue incoming messages on a separate thread for later deserialization and processing on the main thread (FIFO scheduling policy).
+* Data is deserialized with Python’s pickle before being passed as an argument to an event function in the first configured Python script.
+* Each script's event function returns a value. This value is passed as an argument to the next configured script’s event function. This process continues until every script has had its event function called.
+* The return value of the final script’s function is serialized using the pickle module and queued for relaying.
+* Each serialized value queued is sent as a single frame in a two-frame message, with the second frame containing a GUID unique to that node (used to identify the message origin). Each message is sent to all configured target nodes.
+* Data is received, processed, and transmitted continuously until the environment is terminated.
 
 ### Technologies
 - **C# 14**
