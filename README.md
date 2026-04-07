@@ -39,7 +39,7 @@ Its primary features are as follows:
 ## Table of Contents
 - [Prerequisites](#prerequisites)
 - [Quick Start Guide](#quick-start-guide)
-- [Command & Line Interface](#comm&-line-interface)
+- [Command Line Interface](#command-line-interface)
 - [Pipeline Configurations](#pipeline-configurations)
 - [Python Scripting](#python-scripting)
   - [Step Function](#step-function)
@@ -60,14 +60,14 @@ Its primary features are as follows:
   - **Important**: Note the location of your Python DLL file (e.g., `python311.dll`) - you'll need this during setup
 # Quick Start Guide
 
-## 1. Clone & Build
-Clone the repository & navigate to its root directory:
+## 1. Clone and Build
+Clone the repository and navigate to its root directory:
 ```powershell
 git clone https://github.com/SebastianBathrick/DPorch
 cd DPorch
 ```
 
-Restore dependencies & build the solution:
+Restore dependencies and build the solution:
 ```powershell
 dotnet restore
 dotnet build
@@ -89,12 +89,12 @@ You'll see:
 Initialized: Created new preferences file at C:\Users\Sebastian\AppData\Roaming\DPorch\settings.json
 
 Required preferences have not been assigned values
-You can assign them now using prompts or later using the pref comm& with the appropriate options
+You can assign them now using prompts or later using the pref command with the appropriate options
 
 Would you like to set required preferences now? [y/n] (y):
 ```
 
-Press `y` & `ENTER` to continue.
+Press `y` and `ENTER` to continue.
 
 ## 3. Configure Settings
 
@@ -115,7 +115,7 @@ Select input network interface:
 ```
 
 **Output Network Interfaces**  
-Select one or more interfaces that pipelines will scan to discover other pipelines. Use arrow keys to navigate & `SPACEBAR` to select. Press `ENTER` when done:
+Select one or more interfaces that pipelines will scan to discover other pipelines. Use arrow keys to navigate and `SPACEBAR` to select. Press `ENTER` when done:
 ```
 Select output network interfaces:
 > [X] Wi-Fi
@@ -154,7 +154,7 @@ The flags specify:
 - `-o pipeline_b` - Sends output to pipeline_b
 - `-s generate_number.py` - Uses this Python script
 
-Create & edit `generate_number.py`:
+Create and edit `generate_number.py`:
 ```python
 import time
 counter = 0
@@ -185,7 +185,7 @@ The flags specify:
 - `-i 1` - Expects data from 1 source pipeline
 - `-s print_number.py` - Uses this Python script
 
-Create & edit `print_number.py`:
+Create and edit `print_number.py`:
 ```python
 def step(input_data):
     number = input_data["pipeline_a"]
@@ -204,19 +204,19 @@ On **Machine 2**, run Pipeline B:
 dporch run pipeline_b.json
 ```
 
-You should see Pipeline A sending numbers & Pipeline B receiving them. Press `CTRL+C` to stop either pipeline.
+You should see Pipeline A sending numbers and Pipeline B receiving them. Press `CTRL+C` to stop either pipeline.
 
-For more complex pipeline topologies & advanced features, continue reading the sections below.
+For more complex pipeline topologies and advanced features, continue reading the sections below.
 
-# Comm& Line Interface
-DPorch is controlled using an option-based CLI. To run a comm&, you use DPorch’s executable path & follow it with options. To see a list of available comm&s, type into the terminal:
+# Command Line Interface
+DPorch is controlled using an option-based CLI. To run a command, you use DPorch’s executable path and follow it with options. To see a list of available commands, type into the terminal:
 ```powershell
 PS C:\ dporch --help
 ```
 The following will be displayed:
 ```powershell
 USAGE:
-    dporch [OPTIONS] <COMM&>
+    dporch [OPTIONS] <COMMAND>
 
 EXAMPLES:
     dporch init
@@ -228,25 +228,25 @@ EXAMPLES:
 OPTIONS:
     -h, --help    Prints help information
 
-COMM&S:
+COMMANDS:
     init     Create a new pipeline configuration file
     run      Execute a pipeline configuration
     prefs    Manage user preferences. Omit options to view all preferences
 ```
-To see more information about a specific comm&, type into the terminal:
+To see more information about a specific command type into the terminal:
 ```powershell
-dporch <COMM& --help
+dporch <COMMAND --help
 ```
 
 # Pipeline Configurations
 
-To create a new pipeline configuration, use the `init` comm&.
+To create a new pipeline configuration, use the `init` command.
 ```
 PS C:\ dporch init
 Created: C:\Computer\config.json
 ```
 
-The comm& creates a `.json` file in the current working directory that contains the properties necessary to define a pipeline. It will look like this:
+The command creates a `.json` file in the current working directory that contains the properties necessary to define a pipeline. It will look like this:
 ```json
 {
   "name": "",
@@ -258,13 +258,13 @@ The comm& creates a `.json` file in the current working directory that contains 
 
 ## Pipeline Properties
 
-* **name** (string) - The name of the pipeline. This name is used by other pipelines to reference this pipeline in their `target_pipeline_names` list & appears as a dictionary key when this pipeline sends data to others. This name must be at least three characters long.
+* **name** (string) - The name of the pipeline. This name is used by other pipelines to reference this pipeline in their `target_pipeline_names` list and appears as a dictionary key when this pipeline sends data to others. This name must be at least three characters long.
 * **scripts** - Python script file paths relative to the configuration file directory to execute sequentially in each iteration. Each script must define a `step()` function. There must be at least one script file path.
 * **source_pipeline_count** - The number of source pipelines this pipeline expects to receive data from. The pipeline will wait for data from all sources before beginning each iteration. This number can be zero or greater.
 * **target_pipeline_names** - Pipeline names to send this pipeline's output data to. The final script's return value will be sent to all targets listed here. There can be zero or more target pipelines.
 
 # Python Scripting
-Python scripts define pipeline behavior at every phase of its lifecycle: when it starts up, during each iteration, & when it shuts down. Each script has lifecycle hooks similar to React components or Unity MonoBehaviours—code that runs once on startup, code that runs repeatedly, & cleanup code.
+Python scripts define pipeline behavior at every phase of its lifecycle: when it starts up, during each iteration, and when it shuts down. Each script has lifecycle hooks similar to React components or Unity MonoBehaviours—code that runs once on startup, code that runs repeatedly, and cleanup code.
 > [!NOTE]
 > [/examples](/examples) contains files for each example shown below.
 
@@ -276,7 +276,7 @@ def step():
     pass
 ```
 
-Each script's top-level statements run once when the pipeline starts (after receiving h&shakes from its source pipelines), & scripts execute in the order specified in the JSON configuration. After sending h&shakes to its target pipelines, the pipeline begins its iteration loop, executing each script's `step()` function once per iteration in the specified order. Every script has its own isolated scope, & top-level global variables maintain state between iterations.
+Each script's top-level statements run once when the pipeline starts (after receiving handshakes from its source pipelines), and scripts execute in the order specified in the JSON configuration. After sending handshakes to its target pipelines, the pipeline begins its iteration loop, executing each script's `step()` function once per iteration in the specified order. Every script has its own isolated scope, and top-level global variables maintain state between iterations.
 
 Let's pretend the script below is the only script in a given pipeline:
 ```python
@@ -331,7 +331,7 @@ Counter value this iteration: 3
 
 ## End Function
 
-Each script can optionally define an `end` function that is called when the pipeline shuts down, such as when the user sends a keyboard interrupt (`CTRL+C`) in the terminal. The `end()` function takes no parameters & is useful for cleanup operations like releasing resources or closing connections. Like `step()` functions, `end()` functions execute sequentially in the order scripts are defined in the configuration.
+Each script can optionally define an `end` function that is called when the pipeline shuts down, such as when the user sends a keyboard interrupt (`CTRL+C`) in the terminal. The `end()` function takes no parameters and is useful for cleanup operations like releasing resources or closing connections. Like `step()` functions, `end()` functions execute sequentially in the order scripts are defined in the configuration.
 
 The following is a valid script with an `end()` function:
 ```python
@@ -342,9 +342,9 @@ def end():
     print("Cleaning up resources")
 ```
 
-When a pipeline with this script receives a shutdown signal (`CTRL+C`), it will call the `end()` function before terminating. If a script does not define an `end()` function, DPorch will skip it & move to the next script.
+When a pipeline with this script receives a shutdown signal (`CTRL+C`), it will call the `end()` function before terminating. If a script does not define an `end()` function, DPorch will skip it and move to the next script.
 
-Here's a practical example that demonstrates resource management using the `end()` function. This script creates a TCP socket connection, uses it during iterations, & properly closes it during cleanup:
+Here's a practical example that demonstrates resource management using the `end()` function. This script creates a TCP socket connection, uses it during iterations, and properly closes it during cleanup:
 
 **end_close_sock.json**
 ```json
@@ -377,11 +377,11 @@ def end():
     print("Socket closed")
 ```
 
-The script creates a socket connection at the top level, which executes once when the pipeline starts. Each iteration sends a message & receives a response using the `step()` function. When the pipeline shuts down (via `CTRL+C`), the `end()` function is called automatically, ensuring the socket is properly closed before the program terminates.
+The script creates a socket connection at the top level, which executes once when the pipeline starts. Each iteration sends a message and receives a response using the `step()` function. When the pipeline shuts down (via `CTRL+C`), the `end()` function is called automatically, ensuring the socket is properly closed before the program terminates.
 
 ## Delta Time
 
-DPorch provides a special managed variable called `delta_time` that automatically tracks the elapsed time (in seconds) since the previous `step()` function call for that script. To use it, declare a top-level variable named `delta_time` in your script. DPorch will detect this variable & automatically update it before each `step()` function call with the time elapsed since that script's previous `step()` execution.
+DPorch provides a special managed variable called `delta_time` that automatically tracks the elapsed time (in seconds) since the previous `step()` function call for that script. To use it, declare a top-level variable named `delta_time` in your script. DPorch will detect this variable and automatically update it before each `step()` function call with the time elapsed since that script's previous `step()` execution.
 
 The following script demonstrates basic usage of `delta_time`:
 ```python
@@ -393,7 +393,7 @@ def step():
 
 On the first `step()` call, `delta_time` will be `0.0` because the script hasn't been executed yet. On subsequent calls, it will contain the actual elapsed time since the previous `step()` execution for that script.
 
-Here's a practical example that uses `delta_time` to count seconds. The script accumulates elapsed time & prints a message each time a full second passes:
+Here's a practical example that uses `delta_time` to count seconds. The script accumulates elapsed time and prints a message each time a full second passes:
 
 **delta_time_sec.json**
 ```json
@@ -423,17 +423,17 @@ def step():
         print(f"{sec_passed} second(s) have passed")
 ```
 
-The script maintains an `elapsed_time` accumulator that adds the `delta_time` from each iteration. When the accumulated time reaches or exceeds one second, it increments the `sec_passed` counter, resets the accumulator, & prints the total seconds elapsed. DPorch automatically updates `delta_time` before each iteration, so the script doesn't need to manually track timing.
+The script maintains an `elapsed_time` accumulator that adds the `delta_time` from each iteration. When the accumulated time reaches or exceeds one second, it increments the `sec_passed` counter, resets the accumulator, and prints the total seconds elapsed. DPorch automatically updates `delta_time` before each iteration, so the script doesn't need to manually track timing.
 
 # Pipeline Communication
 
-A DPorch pipeline can send output data to zero or more target pipelines & receive input data from zero or more source pipelines, enabling flexible network topologies.
+A DPorch pipeline can send output data to zero or more target pipelines and receive input data from zero or more source pipelines, enabling flexible network topologies.
 
 ## One Source to Multiple Targets
 
-In this example, `pipeline_a` sends its output to both `pipeline_b` & `pipeline_c`.
+In this example, `pipeline_a` sends its output to both `pipeline_b` and `pipeline_c`.
 
-<img src="/.github/images/one-to-many-ex.svg" width=480 alt="Diagram showing one node labeled pipeline_a with one arrow pointing at pipeline_b & another pointing at pipeline_c">
+<img src="/.github/images/one-to-many-ex.svg" width=480 alt="Diagram showing one node labeled pipeline_a with one arrow pointing at pipeline_b and another pointing at pipeline_c">
 
 **pipeline_a.json**
 ```json
@@ -448,7 +448,7 @@ In this example, `pipeline_a` sends its output to both `pipeline_b` & `pipeline_
 }
 ```
 
-The configuration for `pipeline_a` specifies two target pipelines in its `target_pipeline_names` array. This means whatever value the final script returns will be sent to both `pipeline_b` & `pipeline_c`. Since `source_pipeline_count` is `0`, this pipeline doesn't wait for any incoming data before starting its iterations.
+The configuration for `pipeline_a` specifies two target pipelines in its `target_pipeline_names` array. This means whatever value the final script returns will be sent to both `pipeline_b` and `pipeline_c`. Since `source_pipeline_count` is `0`, this pipeline doesn't wait for any incoming data before starting its iterations.
 
 **make_counter_msg.py**
 ```python
@@ -457,7 +457,7 @@ counter = 0
 def step():
     global counter
     counter += 1
-    print(f"Sending {counter} to pipeline_b & pipeline_c")
+    print(f"Sending {counter} to pipeline_b and pipeline_c")
     return counter
 ```
 
@@ -483,7 +483,7 @@ The script maintains a `counter` variable that increments with each iteration. T
 }
 ```
 
-Both `pipeline_b` & `pipeline_c` have similar configurations. Each has `source_pipeline_count` set to `1`, meaning they wait to receive data from one source pipeline before beginning each iteration. They have no target pipelines, so they don't send data to anyone else. Both pipelines use the same script file, `print_counter_msg.py`.
+Both `pipeline_b` and `pipeline_c` have similar configurations. Each has `source_pipeline_count` set to `1`, meaning they wait to receive data from one source pipeline before beginning each iteration. They have no target pipelines, so they don't send data to anyone else. Both pipelines use the same script file, `print_counter_msg.py`.
 
 **print_counter_msg.py**
 ```python
@@ -492,15 +492,15 @@ def step(input_data):
     print(f"I got a message from pipeline_a: {msg}")
 ```
 
-When a pipeline receives data from source pipelines, DPorch bundles the data as a dictionary where the keys are the source pipeline names & the values are the data the keyed pipeline sent. Here, both `pipeline_b` & `pipeline_c` access the incoming counter value using `input_data["pipeline_a"]` because `pipeline_a` is the name of the source.
+When a pipeline receives data from source pipelines, DPorch bundles the data as a dictionary where the keys are the source pipeline names and the values are the data the keyed pipeline sent. Here, both `pipeline_b` and `pipeline_c` access the incoming counter value using `input_data["pipeline_a"]` because `pipeline_a` is the name of the source.
 
 When these three pipelines run together, they produce the following output:
 
 **pipeline_a output**
 ```
-Sending 1 to pipeline_b & pipeline_c
-Sending 2 to pipeline_b & pipeline_c
-Sending 3 to pipeline_b & pipeline_c
+Sending 1 to pipeline_b and pipeline_c
+Sending 2 to pipeline_b and pipeline_c
+Sending 3 to pipeline_b and pipeline_c
 (continues...)
 ```
 
@@ -520,30 +520,30 @@ I got a message from pipeline_a: 3
 (continues...)
 ```
 
-Each time `pipeline_a` completes an iteration, it sends its return value to both target pipelines simultaneously. Both `pipeline_b` & `pipeline_c` receive the same data & process it independently in their own iteration loops.
+Each time `pipeline_a` completes an iteration, it sends its return value to both target pipelines simultaneously. Both `pipeline_b` and `pipeline_c` receive the same data and process it independently in their own iteration loops.
 
 ## Multiple Sources to One Target
 
-In this example, both `pipeline_x` & `pipeline_y` send their outputs to `pipeline_z`.
+In this example, both `pipeline_x` and `pipeline_y` send their outputs to `pipeline_z`.
 
-<img src="/.github/images/many-to-one-ex.svg" width=480 alt="Diagram showing a node labeled pipeline_x & another labeled pipeline_y both pointing at a third node labeled pipeline_z">
+<img src="/.github/images/many-to-one-ex.svg" width=480 alt="Diagram showing a node labeled pipeline_x and another labeled pipeline_y both pointing at a third node labeled pipeline_z">
 
 **pipeline_x.json**
 ```json
 {
   "name": "pipeline_x",
-  "scripts": ["generate_r&om.py"],
+  "scripts": ["generate_random.py"],
   "source_pipeline_count": 0,
   "target_pipeline_names": ["pipeline_z"]
 }
 ```
 
-**generate_r&om.py**
+**generate_random.py**
 ```python
-import r&om
+import random
 
 def step():
-    num = r&om.r&int(1, 100)
+    num = random.randint(1, 100)
     print(f"pipeline_x generated: {num}")
     return num
 ```
@@ -581,12 +581,12 @@ def step():
 **combine_inputs.py**
 ```python
 def step(input_data):
-    r&om_num = input_data["pipeline_x"]
+    random_num = input_data["pipeline_x"]
     timestamp = input_data["pipeline_y"]
-    print(f"Received r&om number {r&om_num} & timestamp {timestamp}")
+    print(f"Received random number {random_num} and timestamp {timestamp}")
 ```
 
-The key difference here is that `pipeline_z` has `source_pipeline_count` set to `2`, which means it waits to receive data from both `pipeline_x` & `pipeline_y` before beginning each iteration. The incoming data is accessed using the source pipeline names as dictionary keys: `input_data["pipeline_x"]` & `input_data["pipeline_y"]`.
+The key difference here is that `pipeline_z` has `source_pipeline_count` set to `2`, which means it waits to receive data from both `pipeline_x` and `pipeline_y` before beginning each iteration. The incoming data is accessed using the source pipeline names as dictionary keys: `input_data["pipeline_x"]` and `input_data["pipeline_y"]`.
 
 When these three pipelines run together, they produce the following output:
 
@@ -608,9 +608,9 @@ pipeline_y generated timestamp: 1702393847
 
 **pipeline_z output**
 ```
-Received r&om number 42 & timestamp 1702393845
-Received r&om number 87 & timestamp 1702393846
-Received r&om number 15 & timestamp 1702393847
+Received random number 42 and timestamp 1702393845
+Received random number 87 and timestamp 1702393846
+Received random number 15 and timestamp 1702393847
 (continues...)
 ```
 
@@ -618,9 +618,9 @@ Notice how `pipeline_z` only processes data after receiving input from both sour
 
 ## Diamond Pipeline Topology Example
 
-In this example, `pipeline_a` generates numbers & sends them to both `pipeline_b` & `pipeline_c`. Each of these pipelines performs a different mathematical operation, then both send their results to `pipeline_d`, which combines them.
+In this example, `pipeline_a` generates numbers and sends them to both `pipeline_b` and `pipeline_c`. Each of these pipelines performs a different mathematical operation, then both send their results to `pipeline_d`, which combines them.
 
-<img src="/.github/images/diamond-ex.svg" width=480 alt="Diagram showing pipeline_a pointing to both pipeline_b & pipeline_c, which both point to pipeline_d">
+<img src="/.github/images/diamond-ex.svg" width=480 alt="Diagram showing pipeline_a pointing to both pipeline_b and pipeline_c, which both point to pipeline_d">
 
 ### pipeline_a - Number Generator
 
@@ -648,7 +648,7 @@ def step():
     return counter
 ```
 
-`pipeline_a` generates incrementing numbers & sends each one to both `pipeline_b` & `pipeline_c`.
+`pipeline_a` generates incrementing numbers and sends each one to both `pipeline_b` and `pipeline_c`.
 
 ### pipeline_b - Doubler
 
@@ -671,7 +671,7 @@ def step(input_data):
     return doubled
 ```
 
-`pipeline_b` receives numbers from `pipeline_a`, doubles them, & sends the result to `pipeline_d`.
+`pipeline_b` receives numbers from `pipeline_a`, doubles them, and sends the result to `pipeline_d`.
 
 ### pipeline_c - Squarer
 
@@ -694,7 +694,7 @@ def step(input_data):
     return squared
 ```
 
-`pipeline_c` receives numbers from `pipeline_a`, squares them, & sends the result to `pipeline_d`.
+`pipeline_c` receives numbers from `pipeline_a`, squares them, and sends the result to `pipeline_d`.
 
 ### pipeline_d - Combiner
 
@@ -714,10 +714,10 @@ def step(input_data):
     doubled = input_data["pipeline_b"]
     squared = input_data["pipeline_c"]
     total = doubled + squared
-    print(f"pipeline_d: Received doubled={doubled} & squared={squared}, sum={total}")
+    print(f"pipeline_d: Received doubled={doubled} and squared={squared}, sum={total}")
 ```
 
-`pipeline_d` waits for data from both `pipeline_b` & `pipeline_c`, then combines the results by adding them together.
+`pipeline_d` waits for data from both `pipeline_b` and `pipeline_c`, then combines the results by adding them together.
 
 ### Output
 
@@ -752,25 +752,21 @@ pipeline_c: Squared 4 to 16
 
 **pipeline_d output**
 ```
-pipeline_d: Received doubled=2 & squared=1, sum=3
-pipeline_d: Received doubled=4 & squared=4, sum=8
-pipeline_d: Received doubled=6 & squared=9, sum=15
-pipeline_d: Received doubled=8 & squared=16, sum=24
+pipeline_d: Received doubled=2 and squared=1, sum=3
+pipeline_d: Received doubled=4 and squared=4, sum=8
+pipeline_d: Received doubled=6 and squared=9, sum=15
+pipeline_d: Received doubled=8 and squared=16, sum=24
 (continues...)
 ```
 
-Notice how `pipeline_d` only processes data after receiving input from both `pipeline_b` & `pipeline_c`. For example, when the original number is 3:
+Notice how `pipeline_d` only processes data after receiving input from both `pipeline_b` and `pipeline_c`. For example, when the original number is 3:
 - `pipeline_b` doubles it to 6
 - `pipeline_c` squares it to 9
-- `pipeline_d` receives both & adds them: 6 + 9 = 15
-
-# Security Note
-DPorch is designed for trusted local networks. All communication is unencrypted & 
-unauthenticated.
+- `pipeline_d` receives both and adds them: 6 + 9 = 15
 
 # Additional Documentation
 
-For detailed technical documentation, including threading model, design patterns, & implementation details, see [ARCHITECTURE.md](/docs/ARCHITECTURE.md).
+For detailed technical documentation, including threading model, design patterns, and implementation details, see [ARCHITECTURE.md](/docs/ARCHITECTURE.md).
 
 # Contributing
 
