@@ -50,14 +50,6 @@ Its primary features are as follows:
   - [Multiple Sources to One Target](#multiple-sources-to-one-target)
   - [Diamond Pipeline Topology Example](#diamond-pipeline-topology-example)
 
-# Prerequisites
-
-- **.NET 9.0 SDK or later** - [Download here](https://dotnet.microsoft.com/download)
-  - Verify installation: `dotnet --version`
-  
-- **Python 3.7 or later** - [Download here](https://www.python.org/downloads/)
-  - Verify installation: `python --version`
-  - **Important**: Note the location of your Python DLL file (e.g., `python311.dll`) - you'll need this during setup
 # Quick Start Guide
 
 ## 1. Clone and Build
