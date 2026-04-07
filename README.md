@@ -24,31 +24,29 @@ Its primary features are as follows:
 
 ## Quick Start Guide
 
-1. **Clone and Build**
-    > Clone the repository and navigate to its `root directory`:
+1. **Clone and Build**: Clone the repository and navigate to its `root directory`:
     ```powershell
     git clone https://github.com/SebastianBathrick/DPorch
     cd DPorch
     ```
 
-    > Restore dependencies and build `DPorch.sln` using `dotnet`:
+    Restore dependencies and build `DPorch.sln` using `dotnet`:
     ```powershell
     dotnet restore
     dotnet build
     ```
 
-2. **Start Setup Wizard**
-    > Navigate to `src\DPorch.CLI\` (console application project):
+2. **Start Setup Wizard**: Navigate to `src\DPorch.CLI\` (console application project):
     ```powershell
     cd .\src\DPorch.CLI\
     ```
 
-    > Run `DPorch.CLI.csproj` using dotnet:
+    Run `DPorch.CLI.csproj` using dotnet:
     ```powershell
     dotnet run
     ```
 
-    > You'll see the following output:
+    You'll see the following output:
     ```
     Initialized: Created new preferences file at C:\Users\Sebastian\AppData\Roaming\DPorch\settings.json
 
@@ -58,15 +56,14 @@ Its primary features are as follows:
     Would you like to set required preferences now? [y/n] (y):
     ```
 
-    > Press `y` and `ENTER` to continue.
+    Press `y` and `ENTER` to continue.
 
-3. **Configure User Preferences**
-    > **Python 3.7+ DLL**: Enter file path (typically in same directory as `python.exe`):
+3. **Configure User Preferences**: **Python 3.7+ DLL**: Enter file path (typically in same directory as `python.exe`):
     ```
     Please enter Python v3.7+ DLL path: C:\<Python Directory>\python311.dll
     ```
 
-    > **Input Network Interface**: Select the interface where pipelines will **send UDP** messages and **receive TCP** messages. Use `ARROW KEYS` to navigate and `SPACEBAR` to select. Press `ENTER` when done:
+    **Input Network Interface**: Select the interface where pipelines will **send UDP** messages and **receive TCP** messages. Use `ARROW KEYS` to navigate and `SPACEBAR` to select. Press `ENTER` when done:
     ```
     Select input network interface:
     > Wi-Fi
@@ -75,7 +72,7 @@ Its primary features are as follows:
     ...
     ```
 
-    > **Output Network Interfaces**: Select one or more interfaces where pipelines will **listen for UDP** messages and **send TCP** messages. 
+    **Output Network Interfaces**: Select one or more interfaces where pipelines will **listen for UDP** messages and **send TCP** messages. 
     ```
     Select output network interfaces:
     > [X] Wi-Fi
@@ -84,32 +81,31 @@ Its primary features are as follows:
     ...
     ```
 
-    > **Service Discovery Port**: Enter the UDP port all pipelines will <u>send and listen for UDP messages</u> during service/pipeline discovery (default: `5557`):
+    **Service Discovery Port**: Enter the UDP port all pipelines will <u>send and listen for UDP messages</u> during service/pipeline discovery (default: `5557`):
     ```
     Please enter service discovery port (1-65535) (5557): 5557
     Saved: Discovery port: 5557
     Preferences file setup complete!
     ```
-    > The application will now exit and now all commands are available to use.
-    
-    > [!NOTE]
-    > Use `prefs --help` to change preferences, locate preferences file, or run the setup wizard again.
+    The application will now exit and now all commands are available to use.
 
-4. **Create Your First DAG**
-    > The same steps can be followed using one or two terminal windows on the **same machine**.
+> [!NOTE]
+> Use `prefs --help` to change preferences, locate preferences file, or run the setup wizard again.
+
+4. **Create Your First DAG**: The same steps can be followed using one or two terminal windows on the **same machine**.
     
-    > #### **Machine 1**: Create Pipeline A
-    > Create a working directory:
+    #### **Machine 1**: Create Pipeline A
+    Create a working directory:
     ```powershell
     mkdir tutorial
     cd tutorial
     ```
-    > Create Pipeline A that will send data *(you can also manually create the JSON file without the `init` command)*. You can set values in the JSON file or use `init` flags (run `dporch init --help` for more flag info).
+    Create Pipeline A that will send data *(you can also manually create the JSON file without the `init` command)*. You can set values in the JSON file or use `init` flags (run `dporch init --help` for more flag info).
     ```powershell
     dporch init -n pipeline_a -i 0 -o pipeline_b -s generate_number.py
     ```
 
-    > Create and edit `generate_number.py`:
+    Create and edit `generate_number.py`:
     ```python
     import time
     counter = 0
@@ -122,13 +118,12 @@ Its primary features are as follows:
         return counter
     ```
 
-    > #### **Machine 2**: Create Pipeline B
-    > Create Pipeline B that will receive data. You can set values in the JSON file or use `init` flags (run `dporch init --help` for more flag info).
+    #### **Machine 2**: Create Pipeline B that will receive data. You can set values in the JSON file or use `init` flags (run `dporch init --help` for more flag info).
     ```powershell
     dporch init -n pipeline_b -i 1 -s print_number.py
     ```
 
-    > Create and edit `print_number.py`:
+    Create and edit `print_number.py`:
     ```python
     def step(input_data):
         number = input_data["pipeline_a"]
@@ -136,24 +131,24 @@ Its primary features are as follows:
     ```
 5. **Execute Pipelines**
 
-    > On **Machine 1**, run Pipeline A:
+    On **Machine 1**, run Pipeline A:
     ```powershell
     dporch run pipeline_a.json
     ```
 
-    > On **Machine 2**, run Pipeline B:
+    On **Machine 2**, run Pipeline B:
     ```powershell
     dporch run pipeline_b.json
     ```
 
-    > If using a **single machine** you can run them in the same terminal by passing both `.json` files to the `run` command:
+    If using a **single machine** you can run them in the same terminal by passing both `.json` files to the `run` command:
     ```powershell
     dporch run pipeline_a.json pipeline_b.json
     ```
 
-    > You should now see Pipeline A sending numbers and Pipeline B receiving them. Press `CTRL+C` to stop either pipeline.
-    > [!TIP] 
-    > For more complex pipeline topologies and advanced features, continue reading the sections below.
+    You should now see Pipeline A sending numbers and Pipeline B receiving them. Press `CTRL+C` to stop either pipeline.
+> [!TIP] 
+> For more complex pipeline topologies and advanced features, start with [One Source to Multiple Targets](#one-source-to-multiple-targets) and continue reading the sections below.
 
 # Documentation
 ## Table of Contents
