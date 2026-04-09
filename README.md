@@ -118,7 +118,13 @@ Its primary features are as follows:
         return counter
     ```
 
-    #### **Machine 2**: Create Pipeline B that will receive data. You can set values in the JSON file or use `init` flags (run `dporch init --help` for more flag info).
+    #### **Machine 2**: Create Pipeline B
+   Create a working directory:
+    ```powershell
+    mkdir tutorial
+    cd tutorial
+    ```
+   Create Pipeline B that will receive data. You can set values in the JSON file or use `init` flags (run `dporch init --help` for more flag info).
     ```powershell
     dporch init -n pipeline_b -i 1 -s print_number.py
     ```
@@ -129,7 +135,7 @@ Its primary features are as follows:
         number = input_data["pipeline_a"]
         print(f"Received: {number}")
     ```
-5. **Execute Pipelines**
+6. **Execute Pipelines**
 
     On **Machine 1**, run Pipeline A:
     ```powershell
